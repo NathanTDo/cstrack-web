@@ -3,7 +3,7 @@ import "../css/Navbar.css";
 
 export default function Navbar() {
   return (
-    <nav className="navbar">
+    <nav className="navbar border-b border-zinc-700 backdrop-filter backdrop-blur-lg">
       <div className="navbar-left">
         <Link href="/" className="navbar-brand">
           CS Track

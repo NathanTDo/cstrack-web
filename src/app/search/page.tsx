@@ -1,6 +1,7 @@
 import SearchResultCard from "@/components/SearchResultCard";
 import { MarketItem } from "@/types/types";
 import "@/css/Search.css";
+import SearchBox from "@/components/SearchBox";
 
 const skins = [
   {
@@ -26,7 +27,7 @@ const skins = [
   },
   {
     __typename: "Skin" as const,
-    id: "2",
+    id: "3",
     market_hash_name: "AK-47 | Cobra Light (Field-Tested)",
     buyPrice: 150,
     quantity: 1,
@@ -36,7 +37,7 @@ const skins = [
   },
   {
     __typename: "Skin" as const,
-    id: "2",
+    id: "4",
     market_hash_name: "AK-47 | Cobra Light (Field-Tested)",
     buyPrice: 150,
     quantity: 1,
@@ -46,7 +47,7 @@ const skins = [
   },
   {
     __typename: "Skin" as const,
-    id: "2",
+    id: "5",
     market_hash_name: "AK-47 | Cobra Light (Field-Tested)",
     buyPrice: 150,
     quantity: 1,
@@ -56,7 +57,7 @@ const skins = [
   },
   {
     __typename: "Skin" as const,
-    id: "2",
+    id: "6",
     market_hash_name: "AK-47 | Cobra Light (Field-Tested)",
     buyPrice: 150,
     quantity: 1,
@@ -68,18 +69,23 @@ const skins = [
 
 function Search({ item }: { item: MarketItem }) {
   return (
-    <div className="w-full grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {skins.map((skin) => (
-        <SearchResultCard
-          key={skin.id}
-          item={{
-            market_hash_name: skin.market_hash_name,
-            price: skin.buyPrice,
-            image: skin.iconUrl,
-            currency: "USD",
-          }}
-        />
-      ))}
+    <div>
+      <div className="w-full flex justify-center">
+        <SearchBox />
+      </div>
+      <div className="w-full grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {skins.map((skin) => (
+          <SearchResultCard
+            key={skin.id}
+            item={{
+              market_hash_name: skin.market_hash_name,
+              price: skin.buyPrice,
+              image: skin.iconUrl,
+              currency: "USD",
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ function SearchResultCard({ item }: { item: MarketItem }) {
 
   return (
     // You'll want to add Tailwind/shadcn classes here
-    <div className="search-result-card w-full h-full bg-zinc-900 rounded-lg p-6 shadow-lg border border-zinc-800">
+    <div className="w-full h-full bg-[#27272A] rounded-lg p-6 shadow-lg border-zinc-800 border-2">
       <img src={imageUrl} alt={item.market_hash_name} />
       <div className="search-result-details">
         {/* Display the item name */}

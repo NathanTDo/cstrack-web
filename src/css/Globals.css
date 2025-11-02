@@ -7,12 +7,11 @@
 
 .main-content {
   flex: 1;
-  padding: 100px 100px;
-  box-sizing: border-box;
   width: 100%;
-  display: flex;
-  justify-content: center;
+  box-sizing: border-box;
+  padding: calc(80px + 2rem) 2rem 2rem;
   color: var(--foreground);
+  position: relative;
 }
 
 @theme inline {
@@ -30,7 +29,7 @@
 }
 
 body {
-  background: oklch(14.5% 0 0);
+  background: #18181B;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
