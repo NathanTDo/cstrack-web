@@ -1,5 +1,19 @@
 {
   "api": {
+    "cstrackApiProxy": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "cstrackApiProxy"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
     "cstrackweb": {
       "dependsOn": [
         {
@@ -51,6 +65,39 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    }
+  },
+  "function": {
+    "cstrackApiProxy": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_cstrackApiProxy_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "cstrackApiProxy"
+        }
+      ]
+    },
+    "AMPLIFY_function_cstrackApiProxy_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "cstrackApiProxy"
+        }
+      ]
+    },
+    "AMPLIFY_function_cstrackApiProxy_secretsPathAmplifyAppId": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "cstrackApiProxy"
+        }
+      ]
     }
   }
 }

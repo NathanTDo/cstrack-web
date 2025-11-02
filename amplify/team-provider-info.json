@@ -16,7 +16,15 @@
         "cstrackwebe4b34066": {}
       },
       "api": {
-        "cstrackweb": {}
+        "cstrackweb": {},
+        "cstrackApiProxy": {}
+      },
+      "function": {
+        "cstrackApiProxy": {
+          "deploymentBucketName": "amplify-cstrackweb-dev-0e17c-deployment",
+          "s3Key": "amplify-builds/cstrackApiProxy-43657766523172357869-build.zip",
+          "secretsPathAmplifyAppId": "d2rig6rpun7u69"
+        }
       }
     }
   }
