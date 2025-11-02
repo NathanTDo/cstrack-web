@@ -1,0 +1,16 @@
+# This defines the structure for storing skins in a user's portfolio.
+# @model tells Amplify to create a DynamoDB table and GraphQL CRUD operations.
+# @auth ensures only the owner (logged-in user) can access their own skins.
+
+type Skin @model 
+  @auth(rules: [ { allow: owner } ]) {
+
+  id: ID!                     # Unique ID for each saved skin entry
+  owner: String               # Automatically added by @auth to link to the user
+  market_hash_name: String!   # Full name (e.g., "AK-47 | Redline (Field-Tested)")
+  buyPrice: Float!            # Price the user paid
+  quantity: Int!              # How many they own
+  wear: String                # e.g., "Field-Tested" (can parse from market_hash_name)
+  statTrak: Boolean           # Is it StatTrak™?
+  iconUrl: String             # URL to the skin's icon image (if you plan to save it from the search)
+}

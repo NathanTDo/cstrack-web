@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cstrackweb-dev-0e17c-authRole",
+      "UnauthRoleArn": "arn:aws:iam::478613247859:role/amplify-cstrackweb-dev-0e17c-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::478613247859:role/amplify-cstrackweb-dev-0e17c-authRole",
+      "Region": "us-west-1",
+      "DeploymentBucketName": "amplify-cstrackweb-dev-0e17c-deployment",
+      "UnauthRoleName": "amplify-cstrackweb-dev-0e17c-unauthRole",
+      "StackName": "amplify-cstrackweb-dev-0e17c",
+      "StackId": "arn:aws:cloudformation:us-west-1:478613247859:stack/amplify-cstrackweb-dev-0e17c/a76d0b10-b3b1-11f0-9f7f-0212ae4fbf4b",
+      "AmplifyAppId": "d2rig6rpun7u69"
+    },
+    "categories": {
+      "auth": {
+        "cstrackwebe4b34066": {}
+      },
+      "api": {
+        "cstrackweb": {}
+      }
+    }
+  }
+}

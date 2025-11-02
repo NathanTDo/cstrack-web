@@ -1,0 +1,9 @@
+.main-content {
+  flex: 1;
+  padding: 100px 100px;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  color: #ffffff;
+}
