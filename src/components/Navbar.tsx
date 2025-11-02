@@ -19,7 +19,7 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="navbar-right">
-        <Link href="/" className="navbar-link">
+        <Link href="/search" className="navbar-link">
           Search
         </Link>
         <Link href="/profile" className="navbar-link">

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* Change this to set the entire page background color */
+  --foreground: #000000;
 }
 
 .main-content {
@@ -12,7 +12,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  color: #ffffff;
+  color: var(--foreground);
 }
 
 @theme inline {
@@ -24,13 +24,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0a0a0a; /* Dark mode background */
     --foreground: #ededed;
   }
 }
 
 body {
-  background: var(--background);
+  background: oklch(14.5% 0 0);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

@@ -14,8 +14,12 @@ const Home = () => {
     <>
       <Navbar />
       <div className="home">
-        <h2>Home Page</h2>
-        <p> Welcome to the CS Track!</p>
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Welcome to CS Track
+          </h1>
+          <p className="text-xl text-gray-300">Track your CS skin portfolio</p>
+        </div>
       </div>
     </>
   );
