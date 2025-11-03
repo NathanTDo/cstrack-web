@@ -22,7 +22,7 @@
       "function": {
         "cstrackApiProxy": {
           "deploymentBucketName": "amplify-cstrackweb-dev-0e17c-deployment",
-          "s3Key": "amplify-builds/cstrackApiProxy-43657766523172357869-build.zip",
+          "s3Key": "amplify-builds/cstrackApiProxy-6451593971796a4b4b74-build.zip",
           "secretsPathAmplifyAppId": "d2rig6rpun7u69"
         }
       }

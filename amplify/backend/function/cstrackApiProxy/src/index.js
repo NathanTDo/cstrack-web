@@ -28,6 +28,33 @@ const normalizePricempirePayload = (payload) => {
   return [];
 };
 
+const PRICEEMPIRE_CDN_BASE = "https://cs2-cdn.pricempire.com";
+
+const resolvePricempireImage = (item) => {
+  const candidates = [
+    item?.image,
+    item?.img,
+    item?.icon,
+    item?.icon_url,
+    item?.image_url,
+  ];
+
+  const imagePath = candidates.find(
+    (value) => typeof value === "string" && value.length > 0
+  );
+  if (!imagePath) return null;
+
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
+
+  if (imagePath.startsWith("/")) {
+    return `${PRICEEMPIRE_CDN_BASE}${imagePath}`;
+  }
+
+  return `${PRICEEMPIRE_CDN_BASE}/${imagePath}`;
+};
+
 exports.handler = async (event) => {
   try {
     // === 1. Get Search Term ===
@@ -112,6 +139,15 @@ exports.handler = async (event) => {
     let skinportRawPayload = [];
     if (skinportResult.status === "fulfilled" && skinportResult.value.ok) {
       skinportRawPayload = await skinportResult.value.json();
+      if (!Array.isArray(skinportRawPayload)) {
+        console.warn("Skinport payload was not an array.", {
+          payloadPreview: skinportRawPayload?.slice
+            ? skinportRawPayload.slice(0, 3)
+            : skinportRawPayload,
+        });
+        skinportRawPayload = [];
+      }
+
       console.log(
         `Received ${skinportRawPayload.length} total items from Skinport.`
       );
@@ -119,7 +155,7 @@ exports.handler = async (event) => {
       // Filter Skinport items and store them in a Map for fast lookup
       for (const item of skinportRawPayload) {
         if (
-          item.market_hash_name.toLowerCase().includes(lowercasedSearchTerm)
+          item.market_hash_name?.toLowerCase?.().includes(lowercasedSearchTerm)
         ) {
           skinportPriceMap.set(item.market_hash_name, {
             suggested_price: getPriceValue(item.suggested_price),
@@ -158,8 +194,7 @@ exports.handler = async (event) => {
 
       return {
         market_hash_name: pItem.market_hash_name,
-        // --- !!! VERIFY THIS FIELD NAME !!! ---
-        image: pItem.image || null, // Assumes Pricempire field is 'image'
+        image: resolvePricempireImage(pItem),
         price: aggregate_price,
         aggregate_price,
         currency: pItem.currency || "USD",
