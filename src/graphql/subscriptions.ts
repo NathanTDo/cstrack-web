@@ -16,7 +16,6 @@ export const onCreateSkin = /* GraphQL */ `subscription OnCreateSkin(
     id
     owner
     market_hash_name
-    buyPrice
     quantity
     wear
     statTrak
@@ -38,7 +37,6 @@ export const onUpdateSkin = /* GraphQL */ `subscription OnUpdateSkin(
     id
     owner
     market_hash_name
-    buyPrice
     quantity
     wear
     statTrak
@@ -60,7 +58,6 @@ export const onDeleteSkin = /* GraphQL */ `subscription OnDeleteSkin(
     id
     owner
     market_hash_name
-    buyPrice
     quantity
     wear
     statTrak

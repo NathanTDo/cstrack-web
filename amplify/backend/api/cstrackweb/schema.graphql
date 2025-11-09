@@ -8,7 +8,6 @@ type Skin @model
   id: ID!                     # Unique ID for each saved skin entry
   owner: String               # Automatically added by @auth to link to the user
   market_hash_name: String!   # Full name (e.g., "AK-47 | Redline (Field-Tested)")
-  buyPrice: Float!            # Price the user paid
   quantity: Int!              # How many they own
   wear: String                # e.g., "Field-Tested" (can parse from market_hash_name)
   statTrak: Boolean           # Is it StatTrak™?

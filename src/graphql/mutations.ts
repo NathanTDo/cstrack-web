@@ -16,7 +16,6 @@ export const createSkin = /* GraphQL */ `mutation CreateSkin(
     id
     owner
     market_hash_name
-    buyPrice
     quantity
     wear
     statTrak
@@ -38,7 +37,6 @@ export const updateSkin = /* GraphQL */ `mutation UpdateSkin(
     id
     owner
     market_hash_name
-    buyPrice
     quantity
     wear
     statTrak
@@ -60,7 +58,6 @@ export const deleteSkin = /* GraphQL */ `mutation DeleteSkin(
     id
     owner
     market_hash_name
-    buyPrice
     quantity
     wear
     statTrak

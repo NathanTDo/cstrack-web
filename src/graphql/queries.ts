@@ -13,7 +13,6 @@ export const getSkin = /* GraphQL */ `query GetSkin($id: ID!) {
     id
     owner
     market_hash_name
-    buyPrice
     quantity
     wear
     statTrak
@@ -34,7 +33,6 @@ export const listSkins = /* GraphQL */ `query ListSkins(
       id
       owner
       market_hash_name
-      buyPrice
       quantity
       wear
       statTrak
