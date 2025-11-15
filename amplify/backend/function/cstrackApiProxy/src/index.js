@@ -24,19 +24,38 @@ exports.handler = async (event) => {
 
     // === 1. Get SteamWebAPI Key ===
     const secretsClient = new SecretsManagerClient({
-      region: process.env.AWS_REGION,
+      region: process.env.AWS_REGION || process.env.REGION,
     });
-    // Use the secret name you configured (e.g., SteamWebApiKey or STEAMWEBAPI_KEY)
-    const secretName =
-      process.env.SteamWebApiKey || process.env.STEAMWEBAPI_KEY;
-    if (!secretName)
-      throw new Error("SteamWebAPI key secret name not configured.");
+    // Use the secret name from environment variable
+    const secretName = process.env.STEAMWEBAPI_KEY;
+    if (!secretName) {
+      throw new Error("STEAMWEBAPI_KEY environment variable not configured.");
+    }
 
+    console.log(`Fetching secret from: ${secretName}`);
     const cmd = new GetSecretValueCommand({ SecretId: secretName });
     const response = await secretsClient.send(cmd);
-    const STEAMWEBAPI_KEY = JSON.parse(response.SecretString)[
-      secretName.split("/").pop()
-    ];
+
+    // Parse the secret - it could be a simple string or a JSON object
+    let STEAMWEBAPI_KEY;
+    try {
+      const secretObj = JSON.parse(response.SecretString);
+      // Try to get the key from the object - it might be under "STEAMWEBAPI_KEY" or the last part of the path
+      const keyName = secretName.split("/").pop();
+      STEAMWEBAPI_KEY =
+        secretObj[keyName] ||
+        secretObj.STEAMWEBAPI_KEY ||
+        secretObj.value ||
+        secretObj.key;
+    } catch (e) {
+      // If it's not JSON, treat it as a plain string
+      STEAMWEBAPI_KEY = response.SecretString;
+    }
+
+    if (!STEAMWEBAPI_KEY) {
+      throw new Error("Could not extract SteamWebAPI key from secret.");
+    }
+    console.log("Successfully retrieved SteamWebAPI key");
 
     // === 2. Fetch ALL items from Skinport (Public) ===
     console.log("Fetching all items from Skinport...");
@@ -63,59 +82,66 @@ exports.handler = async (event) => {
     // === 5. Enrich with Images from SteamWebAPI (Smartly) ===
     console.log("Fetching images smartly from SteamWebAPI...");
 
-    const baseImageMap = new Map(); // Cache for base item names -> image URLs
-    const getBaseName = (marketHashName) => {
-      const match = marketHashName.match(/(.+?)\s+\(/);
-      return match ? match[1] : marketHashName;
+    const baseImageMap = new Map();
+
+    // Helper to normalize names so StatTrak and Normal share the same image
+    const getSharedImageName = (marketHashName) => {
+      // 1. Remove the wear (e.g. "(Field-Tested)")
+      let base = marketHashName.replace(/\s\([^)]+\)$/, "");
+      // 2. (Optional) Remove "StatTrak™ " so both versions share 1 image
+      base = base.replace("StatTrak™ ", "");
+      return base;
     };
 
-    // This loop fetches images for UNIQUE base items one-by-one
     for (const item of filteredItems) {
-      const baseName = getBaseName(item.market_hash_name);
-      if (!baseImageMap.has(baseName)) {
-        // We haven't seen this base item yet, so fetch its image
+      // We use a special "image key" to group items aggressively
+      const imageKey = getSharedImageName(item.market_hash_name);
+
+      if (!baseImageMap.has(imageKey)) {
         try {
+          // Always force "(Field-Tested)" for the search query
+          // This ensures we find the most common version of the image
+          const queryName = `${imageKey} (Field-Tested)`;
+
+          console.log(
+            `Fetching image for group "${imageKey}" using: ${queryName}`
+          );
+
           const steamUrl = `https://www.steamwebapi.com/steam/api/item?key=${STEAMWEBAPI_KEY}&market_hash_name=${encodeURIComponent(
-            item.market_hash_name // Use the full name for the first lookup
+            queryName
           )}`;
 
           const steamRes = await fetch(steamUrl);
-          console.log(
-            `[SteamAPI] Status for ${item.market_hash_name}: ${steamRes.status}`
-          );
 
           let imageUrl = null;
           if (steamRes.ok) {
             const steamData = await steamRes.json();
-            // Try different common field names for the image
             imageUrl =
               steamData.image || steamData.icon_url || steamData.icon_url_large;
           } else {
-            const errorBody = await steamRes.text();
-            console.warn(
-              `[SteamAPI] Failed for ${item.market_hash_name}. Status: ${steamRes.status}, Body: ${errorBody}`
-            );
+            console.warn(`[SteamAPI] Failed: ${steamRes.status}`);
           }
-          baseImageMap.set(baseName, imageUrl); // Cache the result (even if null)
 
-          // Crucial: Add a tiny delay between Steam calls to respect rate limits
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          baseImageMap.set(imageKey, imageUrl);
+
+          // === CRITICAL: DELAY ===
+          // This prevents the "Internal Server Error" / "Missing Image"
+          // We wait 250ms between external API calls
+          await new Promise((resolve) => setTimeout(resolve, 250));
         } catch (err) {
-          console.error(
-            `[SteamAPI] CRITICAL ERROR for ${item.market_hash_name}:`,
-            err
-          );
-          baseImageMap.set(baseName, null); // Cache failures too
+          console.error(`[SteamAPI] Error fetching image:`, err);
+          baseImageMap.set(imageKey, null);
         }
       }
     }
 
-    // Now, map the cached images back to all the filtered items
+    // Map the results back
     const enrichedResults = filteredItems.map((item) => {
-      const baseName = getBaseName(item.market_hash_name);
+      // Use the same key generator to look up the image
+      const imageKey = getSharedImageName(item.market_hash_name);
       return {
         ...item,
-        image: baseImageMap.get(baseName) || null,
+        image: baseImageMap.get(imageKey) || null,
       };
     });
 

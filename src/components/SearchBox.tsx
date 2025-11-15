@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { get } from "@aws-amplify/api";
+import { get } from "aws-amplify/api";
 import { MarketItem } from "@/types/types";
 import SearchResultCard from "./SearchResultCard"; // Assuming SearchResultCard is in components
 import { Search } from "lucide-react"; // Import icon
@@ -31,21 +31,35 @@ export default function SearchBox() {
     setResults([]); // Clear previous results
 
     try {
-      const path = `/search?search=${encodeURIComponent(searchTerm)}`;
+      const path = `/search`;
+      const options = {
+        queryParams: {
+          search: searchTerm,
+        },
+      };
+
       console.log(
-        `[handleSearch] Requesting data from API: ${apiName}, Path: ${path}`
+        `[handleSearch] Requesting data from API: ${apiName}, Path: ${path}, Query: ${searchTerm}`
       );
 
-      const restOperation = get({ apiName: apiName, path: path });
-      const response = await restOperation.response;
-      console.log("[handleSearch] Raw API response received:", response);
+      const restOperation = get({
+        apiName: apiName,
+        path: path,
+        options: options,
+      });
 
-      if (response.statusCode !== 200) {
-        throw new Error(`API returned status code ${response.statusCode}`);
+      console.log("[handleSearch] Waiting for response...");
+      const { body, statusCode } = await restOperation.response;
+
+      console.log("[handleSearch] Response received. Status:", statusCode);
+
+      if (statusCode !== 200) {
+        const errorText = await body.text();
+        console.error("[handleSearch] Non-200 status:", statusCode, errorText);
+        throw new Error(`API returned status ${statusCode}: ${errorText}`);
       }
 
-      const responseBody =
-        (await response.body.json()) as unknown as MarketItem[];
+      const responseBody = (await body.json()) as unknown as MarketItem[];
       console.log("[handleSearch] Parsed response body:", responseBody);
 
       setResults(responseBody);
@@ -55,6 +69,12 @@ export default function SearchBox() {
       }
     } catch (err: any) {
       console.error("[handleSearch] CRITICAL ERROR:", err);
+      console.error("[handleSearch] Error details:", {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        response: err.response,
+      });
       setError(
         `Failed to fetch skins: ${err.message || "Check console logs."}`
       );
