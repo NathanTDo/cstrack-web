@@ -1,8 +1,11 @@
 import { MarketItem } from "@/types/types"; // Import our new type
-import React from "react";
+import React, { useState } from "react";
+import { AddSkinSheet } from "@/components/AddPortfolio";
 
 // This component receives a single MarketItem as a prop
 function SearchResultCard({ item }: { item: MarketItem }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const handleOpen = () => setIsOpen(true);
   // Use a placeholder if the API image is missing
   const imageUrl = item.image;
 
@@ -16,11 +19,12 @@ function SearchResultCard({ item }: { item: MarketItem }) {
 
         {/* Display the market price */}
         <p className="item-price">
-          {item.price
-            ? `$${item.price.toFixed(2)} ${item.currency}`
+          {item.suggested_price
+            ? `$${item.suggested_price.toFixed(2)} ${item.currency}`
             : "Price not available"}
         </p>
       </div>
+      <AddSkinSheet item={item} isOpen={isOpen} onOpenChange={setIsOpen} />
     </div>
   );
 }

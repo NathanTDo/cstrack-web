@@ -4,7 +4,7 @@
 // and make sure these field names (price, image) are correct!
 export interface MarketItem {
   market_hash_name: string;
-  price: number | null; // Or 'suggested_price', check the API response
+  suggested_price: number | null; // Or 'suggested_price', check the API response
   image: string; // Or 'icon_url', check the API response
   currency: string;
   // Add any other fields you want from the search result

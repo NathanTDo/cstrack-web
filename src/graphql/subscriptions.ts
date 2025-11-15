@@ -14,6 +14,7 @@ export const onCreateSkin = /* GraphQL */ `subscription OnCreateSkin(
 ) {
   onCreateSkin(filter: $filter, owner: $owner) {
     id
+    image
     owner
     market_hash_name
     quantity
@@ -35,6 +36,7 @@ export const onUpdateSkin = /* GraphQL */ `subscription OnUpdateSkin(
 ) {
   onUpdateSkin(filter: $filter, owner: $owner) {
     id
+    image
     owner
     market_hash_name
     quantity
@@ -56,6 +58,7 @@ export const onDeleteSkin = /* GraphQL */ `subscription OnDeleteSkin(
 ) {
   onDeleteSkin(filter: $filter, owner: $owner) {
     id
+    image
     owner
     market_hash_name
     quantity

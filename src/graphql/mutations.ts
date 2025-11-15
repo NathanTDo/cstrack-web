@@ -14,6 +14,7 @@ export const createSkin = /* GraphQL */ `mutation CreateSkin(
 ) {
   createSkin(input: $input, condition: $condition) {
     id
+    image
     owner
     market_hash_name
     quantity
@@ -35,6 +36,7 @@ export const updateSkin = /* GraphQL */ `mutation UpdateSkin(
 ) {
   updateSkin(input: $input, condition: $condition) {
     id
+    image
     owner
     market_hash_name
     quantity
@@ -56,6 +58,7 @@ export const deleteSkin = /* GraphQL */ `mutation DeleteSkin(
 ) {
   deleteSkin(input: $input, condition: $condition) {
     id
+    image
     owner
     market_hash_name
     quantity

@@ -4,6 +4,7 @@
 
 export type CreateSkinInput = {
   id?: string | null,
+  image?: string | null,
   owner?: string | null,
   market_hash_name: string,
   quantity: number,
@@ -13,6 +14,7 @@ export type CreateSkinInput = {
 };
 
 export type ModelSkinConditionInput = {
+  image?: ModelStringInput | null,
   owner?: ModelStringInput | null,
   market_hash_name?: ModelStringInput | null,
   quantity?: ModelIntInput | null,
@@ -88,6 +90,7 @@ export type ModelBooleanInput = {
 export type Skin = {
   __typename: "Skin",
   id: string,
+  image?: string | null,
   owner?: string | null,
   market_hash_name: string,
   quantity: number,
@@ -100,6 +103,7 @@ export type Skin = {
 
 export type UpdateSkinInput = {
   id: string,
+  image?: string | null,
   owner?: string | null,
   market_hash_name?: string | null,
   quantity?: number | null,
@@ -114,6 +118,7 @@ export type DeleteSkinInput = {
 
 export type ModelSkinFilterInput = {
   id?: ModelIDInput | null,
+  image?: ModelStringInput | null,
   owner?: ModelStringInput | null,
   market_hash_name?: ModelStringInput | null,
   quantity?: ModelIntInput | null,
@@ -151,6 +156,7 @@ export type ModelSkinConnection = {
 
 export type ModelSubscriptionSkinFilterInput = {
   id?: ModelSubscriptionIDInput | null,
+  image?: ModelSubscriptionStringInput | null,
   market_hash_name?: ModelSubscriptionStringInput | null,
   quantity?: ModelSubscriptionIntInput | null,
   wear?: ModelSubscriptionStringInput | null,
@@ -219,6 +225,7 @@ export type CreateSkinMutation = {
   createSkin?:  {
     __typename: "Skin",
     id: string,
+    image?: string | null,
     owner?: string | null,
     market_hash_name: string,
     quantity: number,
@@ -239,6 +246,7 @@ export type UpdateSkinMutation = {
   updateSkin?:  {
     __typename: "Skin",
     id: string,
+    image?: string | null,
     owner?: string | null,
     market_hash_name: string,
     quantity: number,
@@ -259,6 +267,7 @@ export type DeleteSkinMutation = {
   deleteSkin?:  {
     __typename: "Skin",
     id: string,
+    image?: string | null,
     owner?: string | null,
     market_hash_name: string,
     quantity: number,
@@ -278,6 +287,7 @@ export type GetSkinQuery = {
   getSkin?:  {
     __typename: "Skin",
     id: string,
+    image?: string | null,
     owner?: string | null,
     market_hash_name: string,
     quantity: number,
@@ -301,6 +311,7 @@ export type ListSkinsQuery = {
     items:  Array< {
       __typename: "Skin",
       id: string,
+      image?: string | null,
       owner?: string | null,
       market_hash_name: string,
       quantity: number,
@@ -323,6 +334,7 @@ export type OnCreateSkinSubscription = {
   onCreateSkin?:  {
     __typename: "Skin",
     id: string,
+    image?: string | null,
     owner?: string | null,
     market_hash_name: string,
     quantity: number,
@@ -343,6 +355,7 @@ export type OnUpdateSkinSubscription = {
   onUpdateSkin?:  {
     __typename: "Skin",
     id: string,
+    image?: string | null,
     owner?: string | null,
     market_hash_name: string,
     quantity: number,
@@ -363,6 +376,7 @@ export type OnDeleteSkinSubscription = {
   onDeleteSkin?:  {
     __typename: "Skin",
     id: string,
+    image?: string | null,
     owner?: string | null,
     market_hash_name: string,
     quantity: number,

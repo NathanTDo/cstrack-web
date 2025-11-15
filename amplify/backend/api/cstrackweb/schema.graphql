@@ -6,6 +6,7 @@ type Skin @model
   @auth(rules: [ { allow: owner } ]) {
 
   id: ID!                     # Unique ID for each saved skin entry
+  image: String               # URL to the skin's image
   owner: String               # Automatically added by @auth to link to the user
   market_hash_name: String!   # Full name (e.g., "AK-47 | Redline (Field-Tested)")
   quantity: Int!              # How many they own

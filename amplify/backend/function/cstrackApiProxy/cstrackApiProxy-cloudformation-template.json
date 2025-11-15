@@ -73,7 +73,7 @@
             "REGION": {
               "Ref": "AWS::Region"
             },
-            "PRICEMPIRE_API_KEY": {
+            "STEAMWEBAPI_KEY": {
               "Fn::Join": [
                 "",
                 [
@@ -91,7 +91,7 @@
                       }
                     ]
                   },
-                  "PRICEMPIRE_API_KEY"
+                  "STEAMWEBAPI_KEY"
                 ]
               ]
             }

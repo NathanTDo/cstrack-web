@@ -1,63 +1,16 @@
-/*
-Use the following code to retrieve configured secrets from SSM:
+const {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} = require("@aws-sdk/client-secrets-manager");
 
-const { SSMClient, GetParametersCommand } = require('@aws-sdk/client-ssm');
-
-const client = new SSMClient();
-const { Parameters } = await client.send(new GetParametersCommand({
-  Names: ["PRICEMPIRE_API_KEY"].map(secretName => process.env[secretName]),
-  WithDecryption: true,
-}));
-
-Parameters will be of the form { Name: 'secretName', Value: 'secretValue', ... }[]
-*/
-const { SSMClient, GetParameterCommand } = require("@aws-sdk/client-ssm");
-
-// Helper function to safely parse a price
-const getPriceValue = (price) => {
-  const p = parseFloat(price);
-  return !isNaN(p) && p > 0 ? p : null;
-};
-
-const normalizePricempirePayload = (payload) => {
-  if (!payload) return [];
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload.data)) return payload.data;
-  if (Array.isArray(payload.items)) return payload.items;
-  if (payload.results && Array.isArray(payload.results)) return payload.results;
-  return [];
-};
-
-const PRICEEMPIRE_CDN_BASE = "https://cs2-cdn.pricempire.com";
-
-const resolvePricempireImage = (item) => {
-  const candidates = [
-    item?.image,
-    item?.img,
-    item?.icon,
-    item?.icon_url,
-    item?.image_url,
-  ];
-
-  const imagePath = candidates.find(
-    (value) => typeof value === "string" && value.length > 0
-  );
-  if (!imagePath) return null;
-
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    return imagePath;
-  }
-
-  if (imagePath.startsWith("/")) {
-    return `${PRICEEMPIRE_CDN_BASE}${imagePath}`;
-  }
-
-  return `${PRICEEMPIRE_CDN_BASE}/${imagePath}`;
+// Helper to extract the "base name" by removing the wear (e.g., " (Field-Tested)")
+// This allows us to share one image across all wears of the same skin.
+const getBaseName = (marketHashName) => {
+  return marketHashName.replace(/\s\([^)]+\)$/, "");
 };
 
 exports.handler = async (event) => {
   try {
-    // === 1. Get Search Term ===
     const searchTerm = event.queryStringParameters.search;
     if (!searchTerm) {
       return {
@@ -66,174 +19,117 @@ exports.handler = async (event) => {
         body: JSON.stringify("Error: Missing search parameter."),
       };
     }
-    const lowercasedSearchTerm = searchTerm.toLowerCase();
-    console.log(`Searching for: ${searchTerm}`);
+    const lowerSearchTerm = searchTerm.trim().toLowerCase();
+    console.log(`Searching for: "${lowerSearchTerm}"`);
 
-    // === 2. Get Pricempire API Key ===
-    console.log("Retrieving Pricempire API Key...");
-    const ssmClient = new SSMClient({ region: process.env.AWS_REGION });
-    const secretName = process.env.PRICEMPIRE_API_KEY;
+    // === 1. Get SteamWebAPI Key ===
+    const secretsClient = new SecretsManagerClient({
+      region: process.env.AWS_REGION,
+    });
+    // Use the secret name you configured (e.g., SteamWebApiKey or STEAMWEBAPI_KEY)
+    const secretName =
+      process.env.SteamWebApiKey || process.env.STEAMWEBAPI_KEY;
     if (!secretName)
-      throw new Error("Pricempire secret name env var not configured.");
+      throw new Error("SteamWebAPI key secret name not configured.");
 
-    const apiKeyCommand = new GetParameterCommand({
-      Name: secretName,
-      WithDecryption: true,
-    });
-    const apiKeyResponse = await ssmClient.send(apiKeyCommand);
-    const PRICEMPIRE_API_KEY = apiKeyResponse.Parameter?.Value;
-    if (!PRICEMPIRE_API_KEY)
-      throw new Error("Could not retrieve Pricempire API Key from SSM.");
-    console.log("Successfully retrieved Pricempire API Key.");
+    const cmd = new GetSecretValueCommand({ SecretId: secretName });
+    const response = await secretsClient.send(cmd);
+    const STEAMWEBAPI_KEY = JSON.parse(response.SecretString)[
+      secretName.split("/").pop()
+    ];
 
-    // === 3. Prepare API Calls ===
-    const pricempireUrl = `https://api.pricempire.com/v4/free/search?q=${encodeURIComponent(
-      searchTerm
-    )}`;
-    const skinportUrl = `https://api.skinport.com/v1/items?app_id=730&currency=USD&tradable=true`;
-
-    const pricempirePromise = fetch(pricempireUrl, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${PRICEMPIRE_API_KEY}`,
-        Accept: "application/json",
-      },
-    });
-
-    const skinportPromise = fetch(skinportUrl, {
-      method: "GET",
-      headers: { "Accept-Encoding": "br" },
-    });
-
-    console.log("Making parallel API calls to Pricempire and Skinport...");
-
-    // Use Promise.allSettled to ensure both requests complete, even if one fails
-    const [pricempireResult, skinportResult] = await Promise.allSettled([
-      pricempirePromise,
-      skinportPromise,
-    ]);
-
-    // === 4. Process Pricempire Results (Our "Base" List) ===
-    let pricempireItems = [];
-    let pricempireRawPayload = null;
-    if (pricempireResult.status === "fulfilled" && pricempireResult.value.ok) {
-      pricempireRawPayload = await pricempireResult.value.json();
-      pricempireItems = normalizePricempirePayload(pricempireRawPayload);
-      console.log(
-        `Received ${pricempireItems.length} results from Pricempire.`
-      );
-      if (!Array.isArray(pricempireItems) || pricempireItems.length === 0) {
-        console.warn("Pricempire payload did not contain an array of items.", {
-          keys: pricempireRawPayload ? Object.keys(pricempireRawPayload) : [],
-        });
+    // === 2. Fetch ALL items from Skinport (Public) ===
+    console.log("Fetching all items from Skinport...");
+    const skinportRes = await fetch(
+      "https://api.skinport.com/v1/items?app_id=730&currency=USD",
+      {
+        headers: { "Accept-Encoding": "br" },
       }
-    } else {
-      console.warn(
-        "Pricempire API call failed:",
-        pricempireResult.reason || pricempireResult.value?.statusText
-      );
-    }
+    );
+    if (!skinportRes.ok)
+      throw new Error(`Skinport failed: ${skinportRes.status}`);
+    const allSkinportItems = await skinportRes.json();
+    console.log(`Got ${allSkinportItems.length} items from Skinport.`);
 
-    // === 5. Process Skinport Results (Our "Enrichment" Data) ===
-    const skinportPriceMap = new Map();
-    let skinportRawPayload = [];
-    if (skinportResult.status === "fulfilled" && skinportResult.value.ok) {
-      skinportRawPayload = await skinportResult.value.json();
-      if (!Array.isArray(skinportRawPayload)) {
-        console.warn("Skinport payload was not an array.", {
-          payloadPreview: skinportRawPayload?.slice
-            ? skinportRawPayload.slice(0, 3)
-            : skinportRawPayload,
-        });
-        skinportRawPayload = [];
-      }
+    // === 3. Filter Skinport Results Locally ===
+    // We can increase the limit now since we are much more efficient with image calls
+    const filteredItems = allSkinportItems
+      .filter((item) =>
+        item.market_hash_name.toLowerCase().includes(lowerSearchTerm)
+      )
+      .slice(0, 24);
+    console.log(`Filtered down to top ${filteredItems.length} items.`);
 
-      console.log(
-        `Received ${skinportRawPayload.length} total items from Skinport.`
-      );
+    // === 5. Enrich with Images from SteamWebAPI (Smartly) ===
+    console.log("Fetching images smartly from SteamWebAPI...");
 
-      // Filter Skinport items and store them in a Map for fast lookup
-      for (const item of skinportRawPayload) {
-        if (
-          item.market_hash_name?.toLowerCase?.().includes(lowercasedSearchTerm)
-        ) {
-          skinportPriceMap.set(item.market_hash_name, {
-            suggested_price: getPriceValue(item.suggested_price),
-            min_price: getPriceValue(item.min_price),
-            median_price: getPriceValue(item.median_price),
-          });
+    const baseImageMap = new Map(); // Cache for base item names -> image URLs
+    const getBaseName = (marketHashName) => {
+      const match = marketHashName.match(/(.+?)\s+\(/);
+      return match ? match[1] : marketHashName;
+    };
+
+    // This loop fetches images for UNIQUE base items one-by-one
+    for (const item of filteredItems) {
+      const baseName = getBaseName(item.market_hash_name);
+      if (!baseImageMap.has(baseName)) {
+        // We haven't seen this base item yet, so fetch its image
+        try {
+          const steamUrl = `https://www.steamwebapi.com/steam/api/item?key=${STEAMWEBAPI_KEY}&market_hash_name=${encodeURIComponent(
+            item.market_hash_name // Use the full name for the first lookup
+          )}`;
+
+          const steamRes = await fetch(steamUrl);
+          console.log(
+            `[SteamAPI] Status for ${item.market_hash_name}: ${steamRes.status}`
+          );
+
+          let imageUrl = null;
+          if (steamRes.ok) {
+            const steamData = await steamRes.json();
+            // Try different common field names for the image
+            imageUrl =
+              steamData.image || steamData.icon_url || steamData.icon_url_large;
+          } else {
+            const errorBody = await steamRes.text();
+            console.warn(
+              `[SteamAPI] Failed for ${item.market_hash_name}. Status: ${steamRes.status}, Body: ${errorBody}`
+            );
+          }
+          baseImageMap.set(baseName, imageUrl); // Cache the result (even if null)
+
+          // Crucial: Add a tiny delay between Steam calls to respect rate limits
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        } catch (err) {
+          console.error(
+            `[SteamAPI] CRITICAL ERROR for ${item.market_hash_name}:`,
+            err
+          );
+          baseImageMap.set(baseName, null); // Cache failures too
         }
       }
-      console.log(
-        `Filtered Skinport down to ${skinportPriceMap.size} relevant items.`
-      );
-    } else {
-      console.warn(
-        "Skinport API call failed:",
-        skinportResult.reason || skinportResult.value?.statusText
-      );
     }
 
-    // === 6. Combine & Aggregate Results ===
-    // We use Pricempire's results as the primary list
-    const combinedResults = pricempireItems.map((pItem) => {
-      const skinportMatch = skinportPriceMap.get(pItem.market_hash_name);
-
-      const pPrice = getPriceValue(pItem.price); // Assumes Pricempire field is 'price'
-      const sPrice = skinportMatch ? skinportMatch.suggested_price : null;
-
-      const prices = [];
-      if (pPrice) prices.push(pPrice);
-      if (sPrice) prices.push(sPrice);
-
-      let aggregate_price = null;
-      if (prices.length > 0) {
-        aggregate_price = prices.reduce((a, b) => a + b, 0) / prices.length;
-        aggregate_price = parseFloat(aggregate_price.toFixed(2));
-      }
-
+    // Now, map the cached images back to all the filtered items
+    const enrichedResults = filteredItems.map((item) => {
+      const baseName = getBaseName(item.market_hash_name);
       return {
-        market_hash_name: pItem.market_hash_name,
-        image: resolvePricempireImage(pItem),
-        price: aggregate_price,
-        aggregate_price,
-        currency: pItem.currency || "USD",
-
-        // You can add more data if you want
-        // price_pricempire: pPrice,
-        // price_skinport: sPrice,
-        // skinport_min: skinportMatch ? skinportMatch.min_price : null,
+        ...item,
+        image: baseImageMap.get(baseName) || null,
       };
     });
-    console.log(`Combined results into ${combinedResults.length} items.`);
 
-    const includeRaw =
-      event.queryStringParameters?.debug === "true" ||
-      event.queryStringParameters?.debug === "1";
-
-    let responsePayload = combinedResults;
-    if (includeRaw) {
-      responsePayload = {
-        results: combinedResults,
-        count: combinedResults.length,
-        debug: {
-          pricempire: pricempireRawPayload,
-          skinport: skinportRawPayload,
-        },
-      };
-    }
-
-    // === 7. Return Aggregated Data ===
+    // === 6. Return Final Enriched Data ===
     return {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(responsePayload),
+      body: JSON.stringify(enrichedResults),
     };
   } catch (error) {
-    console.error("FATAL ERROR in Lambda function:", error);
+    console.error("FATAL ERROR:", error);
     return {
       statusCode: 500,
       headers: { "Access-Control-Allow-Origin": "*" },

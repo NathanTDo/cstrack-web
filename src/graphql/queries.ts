@@ -11,6 +11,7 @@ type GeneratedQuery<InputType, OutputType> = string & {
 export const getSkin = /* GraphQL */ `query GetSkin($id: ID!) {
   getSkin(id: $id) {
     id
+    image
     owner
     market_hash_name
     quantity
@@ -31,6 +32,7 @@ export const listSkins = /* GraphQL */ `query ListSkins(
   listSkins(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
+      image
       owner
       market_hash_name
       quantity

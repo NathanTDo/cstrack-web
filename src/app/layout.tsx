@@ -4,6 +4,7 @@ import "../css/Globals.css";
 import ConfigureAmplifyClientSide from "@/components/ConfigureAmplifyClientSide";
 import AuthWrapper from "@/components/AuthWrapper";
 import Navbar from "@/components/Navbar";
+import { AmplifyProvider } from "@/components/AmplifyProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,10 +22,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="root-body">
         <ConfigureAmplifyClientSide />
-        <AuthWrapper>
-          <Navbar />
-          <main className="main-content">{children}</main>
-        </AuthWrapper>
+        <AmplifyProvider>
+          <AuthWrapper>
+            <Navbar />
+            <main className="main-content">{children}</main>
+          </AuthWrapper>
+        </AmplifyProvider>
       </body>
     </html>
   );
