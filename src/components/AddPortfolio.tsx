@@ -105,7 +105,9 @@ export function AddSkinSheet({
               </div>
             )}
             <p className="mt-4 text-xl font-semibold text-amber-400">
-              {item.price ? `$${item.price.toFixed(2)}` : "N/A"}
+              {item.suggested_price
+                ? `$${item.suggested_price.toFixed(2)}`
+                : "N/A"}
             </p>
           </div>
 

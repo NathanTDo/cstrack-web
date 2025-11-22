@@ -87,7 +87,7 @@ export default function SearchBox() {
   const handleSelectSkin = (skin: MarketItem) => {
     console.log("[handleSelectSkin] Selected skin:", skin.market_hash_name);
     // TODO: Open modal to call createSkin GraphQL mutation
-    alert(`Add ${skin.market_hash_name} to your portfolio?`);
+    // alert(`Add ${skin.market_hash_name} to your portfolio?`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -95,6 +95,34 @@ export default function SearchBox() {
       e.preventDefault();
       handleSearch();
     }
+  };
+
+  const loadTestData = () => {
+    const fakeItems: MarketItem[] = [
+      {
+        market_hash_name: "AK-47 | Redline (Field-Tested)",
+        suggested_price: 15.5,
+        image:
+          "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsYD_1IdSQJgRsYAvW_1W4wL_n1p_uu5vLziQw7nEnsX7D30vg_x9vM9c",
+        currency: "USD",
+      },
+      {
+        market_hash_name: "★ Karambit | Fade (Factory New)",
+        suggested_price: 1450.0,
+        image:
+          "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJlY20k_jkI7fUhFRB4MRij7v--YXygED6_0M4YGr2dY6VJ1NoaVgA_gLslOzqg56_v57MzSc17yQk5nnayRO30E1SLrs4V8sSgfw",
+        currency: "USD",
+      },
+      {
+        market_hash_name: "AWP | Dragon Lore (Field-Tested)",
+        suggested_price: 4200.0,
+        image:
+          "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJM6dO4m4mZqPv9NLPF2G0H6sZ03rvD942n3QGx_RE9Zzv1I4fAdQI2YA2CqFe2k-zmh5C86ZSanCRi7CAn4XbD30vgU8J4P8w",
+        currency: "USD",
+      },
+    ];
+    setResults(fakeItems);
+    setError(null);
   };
 
   // --- 5. The component renders its own UI ---
@@ -134,6 +162,13 @@ export default function SearchBox() {
         </div>
       </form>
 
+      <button
+        onClick={loadTestData}
+        className="mb-6 text-xs text-zinc-500 hover:text-amber-500 underline"
+      >
+        Load Test Data (Fake Items)
+      </button>
+
       {/* Loading Indicator */}
       {isLoading && (
         <div className="mt-6">
@@ -152,11 +187,7 @@ export default function SearchBox() {
       {!isLoading && results && results.length > 0 && (
         <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {results.map((item) => (
-            <div
-              key={item.market_hash_name}
-              onClick={() => handleSelectSkin(item)}
-              className="cursor-pointer"
-            >
+            <div key={item.market_hash_name} className="cursor-pointer">
               <SearchResultCard item={item} />
             </div>
           ))}
