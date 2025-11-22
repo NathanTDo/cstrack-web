@@ -20,7 +20,6 @@ exports.handler = async (event) => {
       };
     }
     const lowerSearchTerm = searchTerm.trim().toLowerCase();
-    console.log(`Searching for: "${lowerSearchTerm}"`);
 
     // === 1. Get SteamWebAPI Key ===
     const secretsClient = new SecretsManagerClient({
@@ -32,7 +31,6 @@ exports.handler = async (event) => {
       throw new Error("STEAMWEBAPI_KEY environment variable not configured.");
     }
 
-    console.log(`Fetching secret from: ${secretName}`);
     const cmd = new GetSecretValueCommand({ SecretId: secretName });
     const response = await secretsClient.send(cmd);
 
@@ -55,10 +53,8 @@ exports.handler = async (event) => {
     if (!STEAMWEBAPI_KEY) {
       throw new Error("Could not extract SteamWebAPI key from secret.");
     }
-    console.log("Successfully retrieved SteamWebAPI key");
 
     // === 2. Fetch ALL items from Skinport (Public) ===
-    console.log("Fetching all items from Skinport...");
     const skinportRes = await fetch(
       "https://api.skinport.com/v1/items?app_id=730&currency=USD",
       {
@@ -68,7 +64,6 @@ exports.handler = async (event) => {
     if (!skinportRes.ok)
       throw new Error(`Skinport failed: ${skinportRes.status}`);
     const allSkinportItems = await skinportRes.json();
-    console.log(`Got ${allSkinportItems.length} items from Skinport.`);
 
     // === 3. Filter Skinport Results Locally ===
     // We can increase the limit now since we are much more efficient with image calls
@@ -77,10 +72,8 @@ exports.handler = async (event) => {
         item.market_hash_name.toLowerCase().includes(lowerSearchTerm)
       )
       .slice(0, 24);
-    console.log(`Filtered down to top ${filteredItems.length} items.`);
 
     // === 5. Enrich with Images from SteamWebAPI (Smartly) ===
-    console.log("Fetching images smartly from SteamWebAPI...");
 
     const baseImageMap = new Map();
 
@@ -102,10 +95,6 @@ exports.handler = async (event) => {
           // Always force "(Field-Tested)" for the search query
           // This ensures we find the most common version of the image
           const queryName = `${imageKey} (Field-Tested)`;
-
-          console.log(
-            `Fetching image for group "${imageKey}" using: ${queryName}`
-          );
 
           const steamUrl = `https://www.steamwebapi.com/steam/api/item?key=${STEAMWEBAPI_KEY}&market_hash_name=${encodeURIComponent(
             queryName
