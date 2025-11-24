@@ -15,7 +15,7 @@ function SearchResultCard({ item }: { item: MarketItem }) {
       {/* Add Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="absolute bottom-3 right-5 h-9 w-9 bg-amber-500 rounded-full flex items-center justify-center hover:bg-amber-400 transition-colors shadow-md z-10"
+        className="absolute bottom-3 right-5 h-9 w-9 bg-brand-theme rounded-full flex items-center justify-center hover:bg-brand-theme-hover transition-colors shadow-md z-10"
         aria-label="Add to portfolio"
       >
         <Plus size={18} className="text-black stroke-[3]" />
@@ -42,7 +42,7 @@ function SearchResultCard({ item }: { item: MarketItem }) {
         </p>
 
         {/* Display the market price */}
-        <p className="item-price text-amber-400 font-mono font-medium text-left">
+        <p className="item-price text-brand-theme font-mono font-medium text-left">
           {item.suggested_price
             ? `$${item.suggested_price.toFixed(2)} ${item.currency}`
             : "Price not available"}

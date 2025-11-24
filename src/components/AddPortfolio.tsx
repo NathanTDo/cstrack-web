@@ -57,15 +57,16 @@ export function AddSkinSheet({
             market_hash_name: item.market_hash_name,
             image: item.image,
             quantity: qtyInt,
+            wear: item.wear,
+            statTrak: item.statTrak,
           },
         },
       });
-
-      console.log("Successfully added skin to portfolio!");
+      console.log("Skin added to inventory.");
       onOpenChange(false);
     } catch (error) {
-      console.error("Error adding skin to portfolio:", error);
-      alert("Failed to add skin. Please try again.");
+      console.error("Error saving skin:", error);
+      alert("Failed to save skin. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -104,7 +105,7 @@ export function AddSkinSheet({
                 No Image
               </div>
             )}
-            <p className="mt-4 text-xl font-semibold text-amber-400">
+            <p className="mt-4 text-xl font-semibold text-white">
               {item.suggested_price
                 ? `$${item.suggested_price.toFixed(2)}`
                 : "N/A"}
@@ -121,7 +122,7 @@ export function AddSkinSheet({
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="bg-zinc-900 border-zinc-700 text-white h-12 text-lg focus-visible:ring-amber-500"
+                className="bg-zinc-900 border-zinc-700 text-white h-12 text-lg focus-visible:ring-brand-theme"
                 min="1"
               />
             </div>
@@ -133,7 +134,7 @@ export function AddSkinSheet({
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full bg-amber-500 text-black hover:bg-amber-400 h-12 text-lg font-semibold"
+            className="w-full bg-brand-theme text-black hover:bg-brand-theme-hover h-12 text-lg font-semibold"
           >
             {isSaving ? (
               <>

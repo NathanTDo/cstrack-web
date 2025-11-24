@@ -7,5 +7,7 @@ export interface MarketItem {
   suggested_price: number | null; // Or 'suggested_price', check the API response
   image: string; // Or 'icon_url', check the API response
   currency: string;
+  wear: string;
+  statTrak: boolean;
   // Add any other fields you want from the search result
 }

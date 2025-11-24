@@ -97,34 +97,6 @@ export default function SearchBox() {
     }
   };
 
-  const loadTestData = () => {
-    const fakeItems: MarketItem[] = [
-      {
-        market_hash_name: "AK-47 | Redline (Field-Tested)",
-        suggested_price: 15.5,
-        image:
-          "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsYD_1IdSQJgRsYAvW_1W4wL_n1p_uu5vLziQw7nEnsX7D30vg_x9vM9c",
-        currency: "USD",
-      },
-      {
-        market_hash_name: "★ Karambit | Fade (Factory New)",
-        suggested_price: 1450.0,
-        image:
-          "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf2PLacDBA5ciJlY20k_jkI7fUhFRB4MRij7v--YXygED6_0M4YGr2dY6VJ1NoaVgA_gLslOzqg56_v57MzSc17yQk5nnayRO30E1SLrs4V8sSgfw",
-        currency: "USD",
-      },
-      {
-        market_hash_name: "AWP | Dragon Lore (Field-Tested)",
-        suggested_price: 4200.0,
-        image:
-          "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJM6dO4m4mZqPv9NLPF2G0H6sZ03rvD942n3QGx_RE9Zzv1I4fAdQI2YA2CqFe2k-zmh5C86ZSanCRi7CAn4XbD30vgU8J4P8w",
-        currency: "USD",
-      },
-    ];
-    setResults(fakeItems);
-    setError(null);
-  };
-
   // --- 5. The component renders its own UI ---
   return (
     <div className="flex flex-col items-center w-full">
@@ -139,7 +111,7 @@ export default function SearchBox() {
         <input
           type="text"
           placeholder="Search for skins... (e.g., AK-47 Redline)"
-          className="w-full h-12 pl-10 pr-32 rounded-md border border-zinc-700 bg-zinc-900 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="w-full h-12 pl-10 pr-32 rounded-md border border-zinc-700 bg-zinc-900 text-white focus:outline-none focus:ring-2 focus:ring-brand-theme"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -148,7 +120,7 @@ export default function SearchBox() {
           <button
             type="submit"
             disabled={isLoading}
-            className="h-9 px-4 bg-amber-500 text-black rounded-md hover:bg-amber-400 transition-colors text-sm font-bold disabled:opacity-50"
+            className="h-9 px-4 bg-brand-theme text-black rounded-md hover:bg-brand-theme-hover transition-colors text-sm font-bold disabled:opacity-50"
           >
             {isLoading ? "..." : "Search"}
           </button>
@@ -162,17 +134,10 @@ export default function SearchBox() {
         </div>
       </form>
 
-      <button
-        onClick={loadTestData}
-        className="mb-6 text-xs text-zinc-500 hover:text-amber-500 underline"
-      >
-        Load Test Data (Fake Items)
-      </button>
-
       {/* Loading Indicator */}
       {isLoading && (
         <div className="mt-6">
-          <p className="text-amber-500">Loading results...</p>
+          <p className="text-white">Loading results...</p>
         </div>
       )}
 
