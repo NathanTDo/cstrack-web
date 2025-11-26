@@ -13,4 +13,5 @@ type Skin @model
   wear: String                # e.g., "Field-Tested" (can parse from market_hash_name)
   statTrak: Boolean           # Is it StatTrak™?
   iconUrl: String             # URL to the skin's icon image (if you plan to save it from the search)
+  price: Float                # Suggested price from Pricempire
 }

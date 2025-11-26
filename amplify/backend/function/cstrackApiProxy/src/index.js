@@ -4,14 +4,54 @@ const {
 } = require("@aws-sdk/client-secrets-manager");
 
 // Helper to extract the "base name" by removing the wear (e.g., " (Field-Tested)")
-// This allows us to share one image across all wears of the same skin.
 const getBaseName = (marketHashName) => {
   return marketHashName.replace(/\s\([^)]+\)$/, "");
 };
 
 exports.handler = async (event) => {
   try {
-    const searchTerm = event.queryStringParameters.search;
+    const searchTerm =
+      event.queryStringParameters && event.queryStringParameters.search;
+    const namesParam =
+      event.queryStringParameters && event.queryStringParameters.names;
+
+    // 1. Fetch ALL items from Skinport
+    const skinportRes = await fetch(
+      "https://api.skinport.com/v1/items?app_id=730&currency=USD",
+      {
+        headers: { "Accept-Encoding": "br" },
+      }
+    );
+    if (!skinportRes.ok)
+      throw new Error(`Skinport failed: ${skinportRes.status}`);
+    const allSkinportItems = await skinportRes.json();
+
+    // === MODE A: BULK PRICE CHECK (For Portfolio) ===
+    if (namesParam) {
+      console.log("Fetching live prices for specific items...");
+      const requestedNames = namesParam.split(",");
+
+      const priceMap = {};
+
+      allSkinportItems.forEach((item) => {
+        if (requestedNames.includes(item.market_hash_name)) {
+          // If this item is in our list, save its price
+          priceMap[item.market_hash_name] =
+            item.min_price || item.suggested_price;
+        }
+      });
+
+      return {
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(priceMap),
+      };
+    }
+
+    // === MODE B: NORMAL SEARCH ===
     if (!searchTerm) {
       return {
         statusCode: 400,
@@ -25,7 +65,7 @@ exports.handler = async (event) => {
     const secretsClient = new SecretsManagerClient({
       region: process.env.AWS_REGION || process.env.REGION,
     });
-    // Use the secret name from environment variable
+
     const secretName = process.env.STEAMWEBAPI_KEY;
     if (!secretName) {
       throw new Error("STEAMWEBAPI_KEY environment variable not configured.");
@@ -34,11 +74,9 @@ exports.handler = async (event) => {
     const cmd = new GetSecretValueCommand({ SecretId: secretName });
     const response = await secretsClient.send(cmd);
 
-    // Parse the secret - it could be a simple string or a JSON object
     let STEAMWEBAPI_KEY;
     try {
       const secretObj = JSON.parse(response.SecretString);
-      // Try to get the key from the object - it might be under "STEAMWEBAPI_KEY" or the last part of the path
       const keyName = secretName.split("/").pop();
       STEAMWEBAPI_KEY =
         secretObj[keyName] ||
@@ -46,7 +84,6 @@ exports.handler = async (event) => {
         secretObj.value ||
         secretObj.key;
     } catch (e) {
-      // If it's not JSON, treat it as a plain string
       STEAMWEBAPI_KEY = response.SecretString;
     }
 
@@ -54,46 +91,27 @@ exports.handler = async (event) => {
       throw new Error("Could not extract SteamWebAPI key from secret.");
     }
 
-    // === 2. Fetch ALL items from Skinport (Public) ===
-    const skinportRes = await fetch(
-      "https://api.skinport.com/v1/items?app_id=730&currency=USD",
-      {
-        headers: { "Accept-Encoding": "br" },
-      }
-    );
-    if (!skinportRes.ok)
-      throw new Error(`Skinport failed: ${skinportRes.status}`);
-    const allSkinportItems = await skinportRes.json();
-
     // === 3. Filter Skinport Results Locally ===
-    // We can increase the limit now since we are much more efficient with image calls
     const filteredItems = allSkinportItems
       .filter((item) =>
         item.market_hash_name.toLowerCase().includes(lowerSearchTerm)
       )
       .slice(0, 24);
 
-    // === 5. Enrich with Images from SteamWebAPI (Smartly) ===
-
+    // === 5. Enrich with Images from SteamWebAPI ===
     const baseImageMap = new Map();
 
-    // Helper to normalize names so StatTrak and Normal share the same image
     const getSharedImageName = (marketHashName) => {
-      // 1. Remove the wear (e.g. "(Field-Tested)")
       let base = marketHashName.replace(/\s\([^)]+\)$/, "");
-      // 2. (Optional) Remove "StatTrak™ " so both versions share 1 image
       base = base.replace("StatTrak™ ", "");
       return base;
     };
 
     for (const item of filteredItems) {
-      // We use a special "image key" to group items aggressively
       const imageKey = getSharedImageName(item.market_hash_name);
 
       if (!baseImageMap.has(imageKey)) {
         try {
-          // Always force "(Field-Tested)" for the search query
-          // This ensures we find the most common version of the image
           const queryName = `${imageKey} (Field-Tested)`;
 
           const steamUrl = `https://www.steamwebapi.com/steam/api/item?key=${STEAMWEBAPI_KEY}&market_hash_name=${encodeURIComponent(
@@ -113,9 +131,6 @@ exports.handler = async (event) => {
 
           baseImageMap.set(imageKey, imageUrl);
 
-          // === CRITICAL: DELAY ===
-          // This prevents the "Internal Server Error" / "Missing Image"
-          // We wait 250ms between external API calls
           await new Promise((resolve) => setTimeout(resolve, 250));
         } catch (err) {
           console.error(`[SteamAPI] Error fetching image:`, err);
@@ -124,9 +139,7 @@ exports.handler = async (event) => {
       }
     }
 
-    // Map the results back
     const enrichedResults = filteredItems.map((item) => {
-      // Use the same key generator to look up the image
       const imageKey = getSharedImageName(item.market_hash_name);
       return {
         ...item,

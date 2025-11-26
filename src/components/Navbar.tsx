@@ -8,7 +8,7 @@ export default function Navbar() {
         <Link href="/" className="navbar-brand">
           CS Track
         </Link>
-        <Link href="/" className="navbar-link">
+        <Link href="/portfolio" className="navbar-link">
           Portfolio
         </Link>
         <Link href="/" className="navbar-link">

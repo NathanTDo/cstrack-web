@@ -21,6 +21,7 @@ export const createSkin = /* GraphQL */ `mutation CreateSkin(
     wear
     statTrak
     iconUrl
+    price
     createdAt
     updatedAt
     __typename
@@ -43,6 +44,7 @@ export const updateSkin = /* GraphQL */ `mutation UpdateSkin(
     wear
     statTrak
     iconUrl
+    price
     createdAt
     updatedAt
     __typename
@@ -65,6 +67,7 @@ export const deleteSkin = /* GraphQL */ `mutation DeleteSkin(
     wear
     statTrak
     iconUrl
+    price
     createdAt
     updatedAt
     __typename

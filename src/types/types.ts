@@ -11,3 +11,15 @@ export interface MarketItem {
   statTrak: boolean;
   // Add any other fields you want from the search result
 }
+
+export type PortfolioItem = {
+  id: string;
+  image: string;
+  owner: string;
+  market_hash_name: string;
+  quantity: number;
+  wear: string;
+  statTrak: boolean;
+  iconUrl: string;
+  suggested_price: number;
+};

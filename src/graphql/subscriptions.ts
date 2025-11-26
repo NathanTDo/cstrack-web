@@ -21,6 +21,7 @@ export const onCreateSkin = /* GraphQL */ `subscription OnCreateSkin(
     wear
     statTrak
     iconUrl
+    price
     createdAt
     updatedAt
     __typename
@@ -43,6 +44,7 @@ export const onUpdateSkin = /* GraphQL */ `subscription OnUpdateSkin(
     wear
     statTrak
     iconUrl
+    price
     createdAt
     updatedAt
     __typename
@@ -65,6 +67,7 @@ export const onDeleteSkin = /* GraphQL */ `subscription OnDeleteSkin(
     wear
     statTrak
     iconUrl
+    price
     createdAt
     updatedAt
     __typename

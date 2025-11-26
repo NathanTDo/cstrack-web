@@ -18,6 +18,7 @@ export const getSkin = /* GraphQL */ `query GetSkin($id: ID!) {
     wear
     statTrak
     iconUrl
+    price
     createdAt
     updatedAt
     __typename
@@ -39,6 +40,7 @@ export const listSkins = /* GraphQL */ `query ListSkins(
       wear
       statTrak
       iconUrl
+      price
       createdAt
       updatedAt
       __typename

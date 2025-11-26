@@ -11,6 +11,7 @@ export type CreateSkinInput = {
   wear?: string | null,
   statTrak?: boolean | null,
   iconUrl?: string | null,
+  price?: number | null,
 };
 
 export type ModelSkinConditionInput = {
@@ -21,6 +22,7 @@ export type ModelSkinConditionInput = {
   wear?: ModelStringInput | null,
   statTrak?: ModelBooleanInput | null,
   iconUrl?: ModelStringInput | null,
+  price?: ModelFloatInput | null,
   and?: Array< ModelSkinConditionInput | null > | null,
   or?: Array< ModelSkinConditionInput | null > | null,
   not?: ModelSkinConditionInput | null,
@@ -87,6 +89,18 @@ export type ModelBooleanInput = {
   attributeType?: ModelAttributeTypes | null,
 };
 
+export type ModelFloatInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+};
+
 export type Skin = {
   __typename: "Skin",
   id: string,
@@ -97,6 +111,7 @@ export type Skin = {
   wear?: string | null,
   statTrak?: boolean | null,
   iconUrl?: string | null,
+  price?: number | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -110,6 +125,7 @@ export type UpdateSkinInput = {
   wear?: string | null,
   statTrak?: boolean | null,
   iconUrl?: string | null,
+  price?: number | null,
 };
 
 export type DeleteSkinInput = {
@@ -125,6 +141,7 @@ export type ModelSkinFilterInput = {
   wear?: ModelStringInput | null,
   statTrak?: ModelBooleanInput | null,
   iconUrl?: ModelStringInput | null,
+  price?: ModelFloatInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
   and?: Array< ModelSkinFilterInput | null > | null,
@@ -162,6 +179,7 @@ export type ModelSubscriptionSkinFilterInput = {
   wear?: ModelSubscriptionStringInput | null,
   statTrak?: ModelSubscriptionBooleanInput | null,
   iconUrl?: ModelSubscriptionStringInput | null,
+  price?: ModelSubscriptionFloatInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionSkinFilterInput | null > | null,
@@ -216,6 +234,18 @@ export type ModelSubscriptionBooleanInput = {
   eq?: boolean | null,
 };
 
+export type ModelSubscriptionFloatInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  in?: Array< number | null > | null,
+  notIn?: Array< number | null > | null,
+};
+
 export type CreateSkinMutationVariables = {
   input: CreateSkinInput,
   condition?: ModelSkinConditionInput | null,
@@ -232,6 +262,7 @@ export type CreateSkinMutation = {
     wear?: string | null,
     statTrak?: boolean | null,
     iconUrl?: string | null,
+    price?: number | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -253,6 +284,7 @@ export type UpdateSkinMutation = {
     wear?: string | null,
     statTrak?: boolean | null,
     iconUrl?: string | null,
+    price?: number | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -274,6 +306,7 @@ export type DeleteSkinMutation = {
     wear?: string | null,
     statTrak?: boolean | null,
     iconUrl?: string | null,
+    price?: number | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -294,6 +327,7 @@ export type GetSkinQuery = {
     wear?: string | null,
     statTrak?: boolean | null,
     iconUrl?: string | null,
+    price?: number | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -318,6 +352,7 @@ export type ListSkinsQuery = {
       wear?: string | null,
       statTrak?: boolean | null,
       iconUrl?: string | null,
+      price?: number | null,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -341,6 +376,7 @@ export type OnCreateSkinSubscription = {
     wear?: string | null,
     statTrak?: boolean | null,
     iconUrl?: string | null,
+    price?: number | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -362,6 +398,7 @@ export type OnUpdateSkinSubscription = {
     wear?: string | null,
     statTrak?: boolean | null,
     iconUrl?: string | null,
+    price?: number | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -383,6 +420,7 @@ export type OnDeleteSkinSubscription = {
     wear?: string | null,
     statTrak?: boolean | null,
     iconUrl?: string | null,
+    price?: number | null,
     createdAt: string,
     updatedAt: string,
   } | null,
