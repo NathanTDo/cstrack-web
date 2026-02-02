@@ -3,12 +3,16 @@ import React, { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/api";
 import { listSkins } from "@/graphql/queries";
 import { PortfolioItem } from "@/types/types";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
+import SteamLink from "./SteamLink";
+import ImportInventory from "./ImportInventory";
 
 export default function Portfolio() {
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [prices, setPrices] = useState<Record<string, number>>({}); // Map: "AK-47": 10.50
   const [loading, setLoading] = useState(true);
+  const [steamId, setSteamId] = useState<string | null>(null);
+  const [steamLoading, setSteamLoading] = useState(true);
 
   const client = generateClient();
 
@@ -19,7 +23,33 @@ export default function Portfolio() {
 
   useEffect(() => {
     fetchPortfolioAndPrices();
+    checkSteamLink();
   }, []);
+
+  // Check if user has linked their Steam account
+  const checkSteamLink = async () => {
+    try {
+      const attributes = await fetchUserAttributes();
+      const linkedSteamId = attributes["custom:steamId"];
+      if (linkedSteamId) {
+        setSteamId(linkedSteamId);
+      }
+    } catch (err) {
+      console.error("Error checking Steam link:", err);
+    } finally {
+      setSteamLoading(false);
+    }
+  };
+
+  // Called when user links their Steam account
+  const handleSteamLinkChange = (newSteamId: string | null) => {
+    setSteamId(newSteamId);
+  };
+
+  // Called after items are imported - refresh the portfolio
+  const handleImportComplete = () => {
+    fetchPortfolioAndPrices();
+  };
 
   const fetchPortfolioAndPrices = async () => {
     try {
@@ -79,20 +109,43 @@ export default function Portfolio() {
   return (
     <div className="p-6 max-w-7xl mx-auto text-white">
       {/* --- HEADER SECTION: TOTAL VALUE --- */}
-      <div className="mb-8 p-6 bg-zinc-900 border border-zinc-800 rounded-xl flex flex-row justify-between items-center shadow-lg">
-        <div>
-          <h1 className="text-3xl font-bold">My Portfolio</h1>
-          <p className="text-zinc-400 mt-1">
-            Total items: {items.reduce((acc, item) => acc + item.quantity, 0)}
-          </p>
+      <div className="mb-8 p-6 bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg">
+        <div className="flex flex-row justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">My Portfolio</h1>
+            <p className="text-zinc-400 mt-1">
+              Total items: {items.reduce((acc, item) => acc + item.quantity, 0)}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-zinc-400 uppercase tracking-wide">
+              Total Value (Live)
+            </p>
+            <p className="text-4xl font-mono text-brand-theme">
+              ${totalPortfolioValue.toFixed(2)}
+            </p>
+          </div>
         </div>
-        <div className="text-right mt-4 md:mt-0">
-          <p className="text-sm text-zinc-400 uppercase tracking-wide">
-            Total Value (Live)
-          </p>
-          <p className="text-4xl font-mono text-brand-theme text-green-400">
-            ${totalPortfolioValue.toFixed(2)}
-          </p>
+
+        {/* Steam Integration Section */}
+        <div className="mt-6 pt-6 border-t border-zinc-800 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {steamLoading ? (
+              <div className="text-sm text-zinc-500">Checking Steam link...</div>
+            ) : steamId ? (
+              <>
+                <div className="flex items-center gap-2 text-sm text-zinc-400">
+                  <svg className="w-5 h-5 text-[#1b2838]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.08 3.16 9.42 7.62 11.17l3.37-4.83c-.02-.01-.03-.01-.05-.02-1.39-.54-2.31-1.87-2.31-3.41 0-2.03 1.64-3.67 3.67-3.67.34 0 .67.05.98.14l2.44-3.49C14.65 6.71 13.36 6 12 6c-3.31 0-6 2.69-6 6 0 2.39 1.4 4.44 3.42 5.41l-2.84 4.07C2.73 19.81 0 16.22 0 12 0 5.37 5.37 0 12 0zm0 8c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4z"/>
+                  </svg>
+                  <span>Steam Linked</span>
+                </div>
+                <ImportInventory steamId={steamId} onImportComplete={handleImportComplete} />
+              </>
+            ) : (
+              <SteamLink onLinkChange={handleSteamLinkChange} />
+            )}
+          </div>
         </div>
       </div>
 

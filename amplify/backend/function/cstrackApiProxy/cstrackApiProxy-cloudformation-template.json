@@ -246,6 +246,33 @@
       "DependsOn": [
         "LambdaExecutionRole"
       ]
+    },
+    "CognitoPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "cognito-user-pool-policy",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cognito-idp:AdminUpdateUserAttributes",
+                "cognito-idp:AdminGetUser"
+              ],
+              "Resource": "arn:aws:cognito-idp:us-west-1:478613247859:userpool/us-west-1_aGCiofice"
+            }
+          ]
+        }
+      },
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ]
     }
   },
   "Outputs": {

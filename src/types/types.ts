@@ -23,3 +23,10 @@ export type PortfolioItem = {
   iconUrl: string;
   suggested_price: number;
 };
+
+export interface UserProfile {
+  name: string;
+  email: string;
+  sub: string;
+  steamId: string | null;
+}

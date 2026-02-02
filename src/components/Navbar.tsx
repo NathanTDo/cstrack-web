@@ -11,9 +11,9 @@ export default function Navbar() {
         <Link href="/portfolio" className="navbar-link">
           Portfolio
         </Link>
-        <Link href="/" className="navbar-link">
+        {/* <Link href="/" className="navbar-link">
           Social
-        </Link>
+        </Link> */}
         <Link href="/about" className="navbar-link">
           About
         </Link>

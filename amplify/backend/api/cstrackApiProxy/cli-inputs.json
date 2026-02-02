@@ -7,6 +7,27 @@
       "permissions": {
         "setting": "open"
       }
+    },
+    "/steam/auth": {
+      "name": "/steam/auth",
+      "lambdaFunction": "cstrackApiProxy",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/steam/verify": {
+      "name": "/steam/verify",
+      "lambdaFunction": "cstrackApiProxy",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/steam/inventory": {
+      "name": "/steam/inventory",
+      "lambdaFunction": "cstrackApiProxy",
+      "permissions": {
+        "setting": "open"
+      }
     }
   }
 }
