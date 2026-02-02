@@ -57,21 +57,33 @@ export default function LandingPage() {
 
           <motion.div variants={fadeIn} className="flex gap-4 justify-center">
             <Link href="/search">
-              <Button
-                size="lg"
-                className="bg-brand-theme text-black hover:bg-brand-theme-hover font-bold text-lg px-8"
+              <motion.div
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                Start Tracking
-              </Button>
+                <Button
+                  size="lg"
+                  className="bg-brand-theme text-black hover:bg-brand-theme-hover font-bold text-xl py-4 w-52"
+                >
+                  Start Tracking
+                </Button>
+              </motion.div>
             </Link>
             <Link href="/about">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white"
+              <motion.div
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                Learn More
-              </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800 font-bold text-xl hover:text-white py-4 w-52"
+                >
+                  Learn More
+                </Button>
+              </motion.div>
             </Link>
           </motion.div>
         </motion.div>
@@ -158,9 +170,16 @@ export default function LandingPage() {
             Join thousands of collectors tracking their value today.
           </p>
           <Link href="/portfolio">
-            <Button className="bg-white text-black hover:bg-zinc-200 text-lg py-6 px-8 rounded-full">
-              Get Started for Free
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="inline-block"
+            >
+              <Button className="bg-white text-black hover:bg-zinc-200 text-lg py-6 px-8 rounded-full">
+                Get Started for FREE
+              </Button>
+            </motion.div>
           </Link>
         </motion.div>
       </section>
